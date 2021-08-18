@@ -23,8 +23,8 @@ services:
       LOG_LEVEL: INFO
       SOCKET: "0.0.0.0:5000"
 
-  nginx:
-    build: nginx
+  proxy:
+    build: proxy
     ports:
       - 80:80
     links:
