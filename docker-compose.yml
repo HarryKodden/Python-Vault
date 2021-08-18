@@ -1,0 +1,31 @@
+# docker-compose.yml
+
+version: '3'
+
+services:
+
+  development:
+    build: app
+    environment:
+      LOG_LEVEL: DEBUG
+      FLASK_APP: app
+      FLASK_ENV: development
+    volumes:
+      - "./app:/app"
+    ports:
+      - 5000:5000
+    command:
+      flask run -h 0.0.0.0 -p 5000
+
+  staging:
+    build: app
+    environment:
+      LOG_LEVEL: INFO
+      SOCKET: "0.0.0.0:5000"
+
+  nginx:
+    build: nginx
+    ports:
+      - 80:80
+    links:
+      - "staging:app"
