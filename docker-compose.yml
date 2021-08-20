@@ -4,24 +4,60 @@ version: '3'
 
 services:
 
+  vault:
+    image: vault:latest
+    environment:
+      VAULT_ADDR: http://localhost:8200
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
+    ports:
+      - 8200:8200
+    cap_add:
+      - IPC_LOCK
+    command: vault server -dev -dev-no-store-token=true -log-level=debug -dev-listen-address=0.0.0.0:8200
+
   development:
+    image: app-python-vault
     build: app
     environment:
       LOG_LEVEL: DEBUG
       FLASK_APP: app
       FLASK_ENV: development
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID}
+      LDAP_HOST: ${LDAP_HOST}
+      LDAP_PASSWORD: ${LDAP_PASSWORD}
+      LDAP_BASE_DN: ${LDAP_BASE_DN}
+      LDAP_BIND_DN: ${LDAP_BIND_DN}
+      OIDC_PROVIDER: ${OIDC_PROVIDER}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_REDIRECT_URL: ${OIDC_REDIRECT_URL}
     volumes:
       - "./app:/app"
     ports:
       - 5000:5000
+    links:
+      - vault
     command:
       flask run -h 0.0.0.0 -p 5000
 
   staging:
-    build: app
+    image: app-python-vault
     environment:
       LOG_LEVEL: INFO
-      SOCKET: "0.0.0.0:5000"
+      SOCKET: 0.0.0.0:5000
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID}
+      LDAP_HOST: ${LDAP_HOST}
+      LDAP_PASSWORD: ${LDAP_PASSWORD}
+      LDAP_BASE_DN: ${LDAP_BASE_DN}
+      LDAP_BIND_DN: ${LDAP_BIND_DN}
+      OIDC_PROVIDER: ${OIDC_PROVIDER}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_REDIRECT_URL: ${OIDC_REDIRECT_URL}
+    links:
+      - vault
 
   proxy:
     build: proxy

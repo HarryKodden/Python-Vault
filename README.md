@@ -15,4 +15,13 @@ It uses docker to build some containers:
 - <b>proxy</b>
     This container proxies request towards the WSGI application in the staging container.
 
+
+## Environment
+
+The docker-compose can be configured using a ***.env*** file. You can copy the provided example file and customize your environment.
+
+```
+cp .env.sample .env
+```
+
 (c) Harry Kodden, 2021
